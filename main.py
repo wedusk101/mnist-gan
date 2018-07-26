@@ -32,7 +32,7 @@ def main():
     
     args = parser.parse_args()    
     
-    mnist_data = tf.contrib.learn.python.learn.datasets.mnist.read_data_sets(args.mnist_dir, one_hot=True)
+    mnist_data = tf.contrib.learn.datasets.mnist.read_data_sets(args.mnist_dir, one_hot=True)
 
     if args.train_digits:
         gan = GAN()

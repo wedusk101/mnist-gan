@@ -25,8 +25,8 @@ class GAN:
 
         vars = tf.trainable_variables()
         # build loss function for discriminator
-        d_loss_real = tf.nn.sigmoid_cross_entropy_with_logits(self.d_y_logit, tf.ones_like(self.d_y_logit))
-        d_loss_fake = tf.nn.sigmoid_cross_entropy_with_logits(self.g_d_y_logit, tf.zeros_like(self.g_d_y_logit))
+        d_loss_real = tf.nn.sigmoid_cross_entropy_with_logits(logits=self.d_y_logit, labels=tf.ones_like(self.d_y_logit))
+        d_loss_fake = tf.nn.sigmoid_cross_entropy_with_logits(logits=self.g_d_y_logit, labels=tf.zeros_like(self.g_d_y_logit))
         self.d_loss = d_loss_real + d_loss_fake
         d_training_vars = [v for v in vars if v.name.startswith('discriminator/')]
         self.d_optimizer = tf.train.AdamOptimizer(0.0002, beta1=0.5).minimize(self.d_loss, var_list=d_training_vars)
@@ -35,7 +35,7 @@ class GAN:
 
 
         # build loss function for training the generator
-        self.g_d_loss = tf.nn.sigmoid_cross_entropy_with_logits(self.g_d_y_logit, tf.ones_like(self.g_d_y_logit))
+        self.g_d_loss = tf.nn.sigmoid_cross_entropy_with_logits(logits=self.g_d_y_logit, labels=tf.ones_like(self.g_d_y_logit))
         g_training_vars = [v for v in vars if v.name.startswith('generator/')]
         self.g_d_optimizer = tf.train.AdamOptimizer(0.0002, beta1=0.5).minimize(self.g_d_loss, var_list=g_training_vars)
         
@@ -84,7 +84,7 @@ class GAN:
             _, generator_loss = sess.run([self.g_d_optimizer, self.g_d_loss], feed_dict={self.is_training: True, self.g_x: z, self.d_keep_prob: 1.0})
 
             if step % 100 == 0:
-                print "Digit %d Step %d Eval: %f %f" % (digit, step, discriminator_loss[0], generator_loss[0])
+                print ("Digit %d Step %d Eval: %f %f" % (digit, step, discriminator_loss[0], generator_loss[0]))
 
             if step % 250 == 0:
                 result = self.eval_generator(sess, 32)
@@ -95,7 +95,7 @@ class GAN:
                 total_accuracy = 0
                 total_samples = 0
                 num_batches = 5
-                for i in xrange(num_batches):
+                for i in range(num_batches):
                     fake_samples = [(x, 0.0) for x in self.eval_generator(sess, 32)]
                     real_samples = [(x, 1.0) for x in random.sample(test_digits_of_interest, 32)]
                     samples = fake_samples + real_samples

@@ -200,4 +200,3 @@ class GAN:
         d_y = tf.sigmoid(d_y_logit)
         
         return d_y, d_y_logit
-    

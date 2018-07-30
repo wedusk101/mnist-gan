@@ -10,7 +10,7 @@ import random
 from gan import GAN
 from mnist import MNIST
 
-def gen_samples(gan, sessions):
+def gen_samples(gan, sessions): 
     samples = []
     for i, s in enumerate(sessions):
         samples_for_digit = gan.eval_generator(s, 32)
@@ -30,21 +30,21 @@ def main():
     parser.add_argument("--train-mnist", action='store_true', help="If specified, train the mnist classifier based on generated digits from saved models")
     global args
     
-    args = parser.parse_args()    
+    args = parser.parse_args() # used to store input arguments    
     
-    mnist_data = tf.contrib.learn.datasets.mnist.read_data_sets(args.mnist_dir, one_hot=True)
+    mnist_data = tf.contrib.learn.datasets.mnist.read_data_sets(args.mnist_dir, one_hot=True) # loads mnist data from tensorflow datasets
 
-    if args.train_digits:
+    if args.train_digits:	# checks if the user has input digits to train on
         gan = GAN()
-        for digit in map(int, args.train_digits.split(',')):
-            path = "%s/digit-%d/model" % (args.output_dir, digit)
+        for digit in map(int, args.train_digits.split(',')): # iterates through a list of user input digits ---- map() applies a function to a list and 
+            path = "%s/digit-%d/model" % (args.output_dir, digit) # creates a variable to store the path for saving the models
             if not os.path.exists(os.path.dirname(path)):
                 os.makedirs(os.path.dirname(path))
-            gan.train_digit(mnist_data, digit, path)
-    elif args.train_mnist:
+            gan.train_digit(mnist_data, digit, path) # reads the mnist data for each digit in the training set provided by the user and saves the trained session to path
+    elif args.train_mnist:	# if the user doesn't input any training data
         gan = GAN()
         print("Loading generator models...")
-        sessions = [gan.restore_session("%s/digit-%d" % (args.output_dir, digit)) for digit in range(10)]
+        sessions = [gan.restore_session("%s/digit-%d" % (args.output_dir, digit)) for digit in range(10)] # restores saved generator sessions for each digits 0 through 9
         print("Done")
         samples = [[], []]
         

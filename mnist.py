@@ -46,7 +46,7 @@ class MNIST:
         
                 self.y_logit = tf.matmul(h_fc1_drop, W_fc2) + b_fc2
             
-                self.cross_entropy = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(self.y_logit, self.y_))
+                self.cross_entropy = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(self.y_logit, self.y_)) # softmax non-linearity for the fully connected layers 
                 self.train_step = tf.train.AdamOptimizer(1e-4).minimize(self.cross_entropy)
                 self.correct_prediction = tf.equal(tf.argmax(self.y_logit, 1), tf.argmax(self.y_, 1))
                 self.accuracy = tf.reduce_mean(tf.cast(self.correct_prediction, tf.float32))
@@ -84,7 +84,7 @@ class MNIST:
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--mnist-dir", default='/tmp/mnist-data', help="Director where mnist downloaded dataset will be stored")
+    parser.add_argument("--mnist-dir", default='/tmp/mnist-data', help="Directory where mnist downloaded dataset will be stored")
     parser.add_argument("--num-steps", default=20000*50, help="Number of total sample images to train on")
     args = parser.parse_args()
     

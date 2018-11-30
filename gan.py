@@ -24,12 +24,12 @@ class GAN:
             self.g_d_y, self.g_d_y_logit = self.build_discriminator(self.g_y, self.d_keep_prob)
 
         vars = tf.trainable_variables()
-        # build loss function for discriminator
+        # build loss function for discriminator - cross entropy loss takes into account the degree of misclassification and solves the vanishing gradient problem
         d_loss_real = tf.nn.sigmoid_cross_entropy_with_logits(logits=self.d_y_logit, labels=tf.ones_like(self.d_y_logit))
         d_loss_fake = tf.nn.sigmoid_cross_entropy_with_logits(logits=self.g_d_y_logit, labels=tf.zeros_like(self.g_d_y_logit))
-        self.d_loss = d_loss_real + d_loss_fake
+        self.d_loss = d_loss_real + d_loss_fake # total loss - 
         d_training_vars = [v for v in vars if v.name.startswith('discriminator/')]
-        self.d_optimizer = tf.train.AdamOptimizer(0.0002, beta1=0.5).minimize(self.d_loss, var_list=d_training_vars)
+        self.d_optimizer = tf.train.AdamOptimizer(0.0002, beta1=0.5).minimize(self.d_loss, var_list=d_training_vars) # used for adaptive learning rate
 
         self.d_accuracy = tf.reduce_sum(tf.cast(tf.equal(tf.round(self.d_y_logit), tf.round(self.d_y_)), tf.float32))
 
@@ -122,7 +122,7 @@ class GAN:
     def batch_norm(self, x):
         return tf.contrib.layers.batch_norm(x, decay=0.9, scale=True, is_training=self.is_training, updates_collections=None)
 
-    def build_generator(self):
+    def build_generator(self): # Works like a de-convolutional network. Note the reverse order of the layers compared to the discrimator below
         with tf.variable_scope('generator') as scope:
             g_x = tf.placeholder(tf.float32, shape=[None, 32], name='input')
 
@@ -152,7 +152,7 @@ class GAN:
             g_y = tf.nn.sigmoid(g_y_logits)
         return g_x, g_y, g_y_logits
 
-    def build_discriminator(self, x, keep_prob):
+    def build_discriminator(self, x, keep_prob): # Contains a CNN with one input layer, two conv layers (each with a leaky-ReLu and a 2x2 max pool), two fully connected layers (each with drop outs for regularization)
         def weight_variable(shape):
           return tf.get_variable('weights', shape, initializer=tf.contrib.layers.xavier_initializer())
 
